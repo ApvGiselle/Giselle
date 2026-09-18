@@ -316,7 +316,7 @@
             border: 1px solid var(--fm-border); box-shadow: 0 4px 12px var(--fm-shadow);
             display: flex; justify-content: center; align-items: center;
             color: var(--fm-text-main); font-size: 20px; cursor: grab; pointer-events: auto;
-            transition: var(--fm-transition); touch-action: none; user-select: none; z-index: 10;
+            transition: var(--fm-transition); touch-action: none; user-select: none; z-index: 2147483646;
         }
         .fm-ball:active { cursor: grabbing; transform: scale(0.95); }
         .fm-ball.playing { animation: breathe 3s ease-in-out infinite; }
@@ -604,8 +604,6 @@
 
         /* 2026-09 极简布局优化：播放与歌单合页，设置集中到一个页面；减少卡片分割线 */
         .fm-panel { background: var(--fm-bg); }
-        .fm-panel::after { content:""; position:absolute; inset:0; pointer-events:none; z-index:0; background:var(--fm-panel-overlay, transparent); }
-        .fm-panel > *:not(.fm-panel-bg) { position:relative; z-index:1; }
         .theme-light { --fm-bg:#f7f7f5; --fm-text-main:#171717; --fm-text-sub:#707070; --fm-accent:#171717; --fm-border:rgba(0,0,0,.08); --fm-shadow:rgba(0,0,0,.10); --fm-panel-overlay:rgba(255,255,255,.30); }
         .theme-dark { --fm-bg:#111111; --fm-text-main:#f5f5f5; --fm-text-sub:#9a9a9a; --fm-accent:#ffffff; --fm-border:rgba(255,255,255,.10); --fm-shadow:rgba(0,0,0,.38); --fm-panel-overlay:rgba(0,0,0,.16); }
         .theme-glass { --fm-bg:rgba(255,255,255,.16); --fm-text-main:#ffffff; --fm-text-sub:rgba(255,255,255,.76); --fm-accent:var(--fm-custom-color,#ffffff); --fm-border:rgba(255,255,255,.18); --fm-shadow:rgba(0,0,0,.20); --fm-panel-overlay:rgba(255,255,255,.08); }
@@ -737,8 +735,6 @@
                         <div class="fm-playlist-tabs" id="fm-playlist-tabs"></div>
                         <div class="fm-playlist" id="fm-playlist"></div>
                     </div>
-                </section>
-
                 </section>
 
                 <!-- 设置 -->
