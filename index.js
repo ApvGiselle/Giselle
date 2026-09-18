@@ -466,6 +466,8 @@
         }
         .fm-out-lyrics.show { opacity: 1; }
         .fm-lrc-line { font-size: var(--fm-lrc-font, 16px); font-weight: bold; color: var(--fm-accent); text-shadow: 0 2px 8px var(--fm-shadow), 0 0 2px rgba(0,0,0,0.5); line-height: 1.4; }
+        .fm-lrc-plain-line { font-size: var(--fm-lrc-font, 16px); font-weight: bold; color: var(--fm-accent); line-height: 1.4; text-shadow: 0 2px 8px var(--fm-shadow), 0 0 2px rgba(0,0,0,0.5); }
+        .fm-lrc-plain-trans { margin-top: 4px; }
         .fm-lrc-trans { font-size: calc(var(--fm-lrc-font, 16px) * 0.75); color: var(--fm-text-sub); text-shadow: 0 1px 4px var(--fm-shadow); }
         
         /* 优化动画效果：减小位移，延长持续时间，增强“浮现”感而非“弹跳”感 */
@@ -529,8 +531,8 @@
         .fm-lrc-settings-panel.open { display: flex; }
         .fm-lrc-settings-row { display: flex; align-items: center; gap: 10px; }
         .fm-lrc-settings-label { font-size: 11px; color: var(--fm-text-sub); width: 56px; flex-shrink: 0; }
-        .fm-lrc-mode-switch { display: flex; gap: 6px; flex: 1; }
-        .fm-lrc-mode-btn { flex: 1; padding: 6px 0; font-size: 11px; text-align: center; border-radius: var(--fm-radius-input); border: 1px solid var(--fm-border); background: none; color: var(--fm-text-sub); cursor: pointer; transition: var(--fm-transition); }
+        .fm-lrc-mode-switch { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; flex: 1; }
+        .fm-lrc-mode-btn { padding: 6px 0; font-size: 11px; text-align: center; border-radius: var(--fm-radius-input); border: 1px solid var(--fm-border); background: none; color: var(--fm-text-sub); cursor: pointer; transition: var(--fm-transition); }
         .fm-lrc-mode-btn.active { color: var(--fm-accent); border-color: var(--fm-accent); }
         .fm-lrc-settings-row input[type=range] { flex: 1; accent-color: var(--fm-accent); }
         .force-hide { display: none !important; }
@@ -671,8 +673,9 @@
                             <div class="fm-lrc-settings-row">
                                 <span class="fm-lrc-settings-label">样式</span>
                                 <div class="fm-lrc-mode-switch">
-                                    <button class="fm-lrc-mode-btn" id="fm-lrc-mode-popup" data-mode="popup">逐句弹出</button>
-                                    <button class="fm-lrc-mode-btn" id="fm-lrc-mode-scroll" data-mode="scroll">滚动三行</button>
+                                    <button class="fm-lrc-mode-btn" id="fm-lrc-mode-plain" data-mode="plain">普通歌词</button>
+                                    <button class="fm-lrc-mode-btn" id="fm-lrc-mode-popup" data-mode="popup">逐句显现</button>
+                                    <button class="fm-lrc-mode-btn" id="fm-lrc-mode-scroll" data-mode="scroll">三行滚动</button>
                                     <button class="fm-lrc-mode-btn" id="fm-lrc-mode-fall" data-mode="fall">随机掉落</button>
                                 </div>
                             </div>
@@ -830,6 +833,7 @@
         lrcToggleBtn: wrapper.querySelector('#fm-lrc-toggle'),
         lrcSettingsBtn: wrapper.querySelector('#fm-lrc-settings'),
         lrcSettingsPanel: wrapper.querySelector('#fm-lrc-settings-panel'),
+        lrcModePlainBtn: wrapper.querySelector('#fm-lrc-mode-plain'),
         lrcModePopupBtn: wrapper.querySelector('#fm-lrc-mode-popup'),
         lrcModeScrollBtn: wrapper.querySelector('#fm-lrc-mode-scroll'),
         lrcModeFallBtn: wrapper.querySelector('#fm-lrc-mode-fall'),
@@ -1625,6 +1629,21 @@
 
             if (savedSettings.lrcMode === 'scroll') {
                 renderScrollActiveLine(activeIdx);
+            } else if (savedSettings.lrcMode === 'plain') {
+                const line = STATE.lyricsData[activeIdx];
+                UI.outLyrics.replaceChildren();
+
+                const lineEl = targetDoc.createElement('div');
+                lineEl.className = 'fm-lrc-plain-line';
+                lineEl.textContent = line.text || '';
+                UI.outLyrics.appendChild(lineEl);
+
+                if (line.trans) {
+                    const transEl = targetDoc.createElement('div');
+                    transEl.className = 'fm-lrc-trans fm-lrc-plain-trans';
+                    transEl.textContent = line.trans;
+                    UI.outLyrics.appendChild(transEl);
+                }
             } else {
                 const line = STATE.lyricsData[activeIdx];
                 
@@ -1647,6 +1666,14 @@
                     for (let i = validIndices.length - 1; i > 0; i--) {
                         const j = Math.floor(Math.random() * (i + 1));
                         [validIndices[i], validIndices[j]] = [validIndices[j], validIndices[i]];
+                    }
+                    // 保留随机掉落的随机性，但强制这一句的最后一个非空白字符最后掉落。
+                    if (validIndices.length > 1) {
+                        const lastIndex = validIndices.length - 1;
+                        const finalCharIndex = validIndices.findIndex(index => index === chars.length - 1);
+                        if (finalCharIndex !== -1) {
+                            [validIndices[finalCharIndex], validIndices[lastIndex]] = [validIndices[lastIndex], validIndices[finalCharIndex]];
+                        }
                     }
                     
                     const delayOrderMap = new Map();
@@ -1748,7 +1775,12 @@
                 }
             }
         }
-        lrcRafId = requestAnimationFrame(updateLyrics);
+        // 普通歌词模式不需要逐帧渲染；由 audio.ontimeupdate 驱动即可。
+        if (savedSettings.lrcMode !== 'plain') {
+            lrcRafId = requestAnimationFrame(updateLyrics);
+        } else {
+            lrcRafId = null;
+        }
     }
 
     // ================= 事件绑定 =================
@@ -1800,6 +1832,17 @@
 
     UI.lrcSettingsBtn.onclick = () => {
         UI.lrcSettingsPanel.classList.toggle('open');
+    };
+
+    UI.lrcModePlainBtn.onclick = () => {
+        if (savedSettings.lrcMode === 'plain') return;
+        savedSettings.lrcMode = 'plain';
+        updateLrcModeBtns();
+        STATE.lastActiveLrcIndex = -1;
+        if (lrcRafId) { cancelAnimationFrame(lrcRafId); lrcRafId = null; }
+        syncLyricsVisibility();
+        if (STATE.isLyricsVisible && !audio.paused) updateLyrics();
+        applySettings();
     };
 
     UI.lrcModePopupBtn.onclick = () => {
@@ -2028,10 +2071,7 @@
     };
 
     const readSmallImage = (file, maxSize = 256) => new Promise((resolve, reject) => {
-        const mime = String(file?.type || '').toLowerCase();
-        const isGif = mime === 'image/gif' || /\.gif$/i.test(file?.name || '');
-        const isImage = mime.startsWith('image/') || isGif;
-        if (!file || !isImage) {
+        if (!file || !file.type || !file.type.startsWith('image/')) {
             reject(new Error('NOT_IMAGE'));
             return;
         }
@@ -2043,13 +2083,6 @@
         const reader = new FileReader();
         reader.onerror = () => reject(new Error('READ_FAILED'));
         reader.onload = (event) => {
-            // GIF 不能经过 canvas 压缩，否则会只剩单帧；这里直接保留原始 GIF 数据，
-            // 让浏览器继续播放动画。播放器本身仍会按 82×82px 的小卡片尺寸显示。
-            if (isGif) {
-                resolve(event.target.result);
-                return;
-            }
-
             const img = new Image();
             img.onload = () => {
                 const longest = Math.max(img.naturalWidth || 1, img.naturalHeight || 1);
@@ -2065,7 +2098,7 @@
                     return;
                 }
                 ctx.drawImage(img, 0, 0, width, height);
-                const outputType = mime === 'image/png' ? 'image/png' : 'image/jpeg';
+                const outputType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
                 try {
                     resolve(canvas.toDataURL(outputType, outputType === 'image/jpeg' ? 0.82 : undefined));
                 } catch (err) {
@@ -2143,6 +2176,7 @@
     applySettings();
 
     const updateLrcModeBtns = () => {
+        UI.lrcModePlainBtn.classList.toggle('active', savedSettings.lrcMode === 'plain');
         UI.lrcModePopupBtn.classList.toggle('active', savedSettings.lrcMode === 'popup');
         UI.lrcModeScrollBtn.classList.toggle('active', savedSettings.lrcMode === 'scroll');
         UI.lrcModeFallBtn.classList.toggle('active', savedSettings.lrcMode === 'fall');
@@ -2173,7 +2207,7 @@
             API.toast('播放器装修小图已更新');
         } catch (err) {
             if (err && err.message === 'TOO_LARGE') {
-                API.toast('图片原文件太大，请选择 8MB 以内的图片。GIF 动图也建议尽量小一些。');
+                API.toast('图片原文件太大，请选择 8MB 以内的图片。');
             } else {
                 API.toast('图片读取失败，请换一张图片重试。');
             }
@@ -2275,7 +2309,10 @@
         if (STATE.playMode === 'repeat_one') { audio.currentTime = 0; audio.play(); }
         else playNext();
     };
-    audio.ontimeupdate = () => { if (!STATE.isSeekingProgress) updateProgressUI(audio.currentTime, audio.duration); };
+    audio.ontimeupdate = () => {
+        if (!STATE.isSeekingProgress) updateProgressUI(audio.currentTime, audio.duration);
+        if (STATE.isLyricsVisible && savedSettings.lrcMode === 'plain') updateLyrics();
+    };
     audio.onloadedmetadata = () => { if (!STATE.isSeekingProgress) updateProgressUI(audio.currentTime, audio.duration); };
     audio.onerror = () => {
         const failedIndex = STATE.currentIndex;
