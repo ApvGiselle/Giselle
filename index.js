@@ -2028,7 +2028,10 @@
     };
 
     const readSmallImage = (file, maxSize = 256) => new Promise((resolve, reject) => {
-        if (!file || !file.type || !file.type.startsWith('image/')) {
+        const mime = String(file?.type || '').toLowerCase();
+        const isGif = mime === 'image/gif' || /\.gif$/i.test(file?.name || '');
+        const isImage = mime.startsWith('image/') || isGif;
+        if (!file || !isImage) {
             reject(new Error('NOT_IMAGE'));
             return;
         }
@@ -2040,6 +2043,13 @@
         const reader = new FileReader();
         reader.onerror = () => reject(new Error('READ_FAILED'));
         reader.onload = (event) => {
+            // GIF 不能经过 canvas 压缩，否则会只剩单帧；这里直接保留原始 GIF 数据，
+            // 让浏览器继续播放动画。播放器本身仍会按 82×82px 的小卡片尺寸显示。
+            if (isGif) {
+                resolve(event.target.result);
+                return;
+            }
+
             const img = new Image();
             img.onload = () => {
                 const longest = Math.max(img.naturalWidth || 1, img.naturalHeight || 1);
@@ -2055,7 +2065,7 @@
                     return;
                 }
                 ctx.drawImage(img, 0, 0, width, height);
-                const outputType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+                const outputType = mime === 'image/png' ? 'image/png' : 'image/jpeg';
                 try {
                     resolve(canvas.toDataURL(outputType, outputType === 'image/jpeg' ? 0.82 : undefined));
                 } catch (err) {
@@ -2163,7 +2173,7 @@
             API.toast('播放器装修小图已更新');
         } catch (err) {
             if (err && err.message === 'TOO_LARGE') {
-                API.toast('图片原文件太大，请选择 8MB 以内的图片。');
+                API.toast('图片原文件太大，请选择 8MB 以内的图片。GIF 动图也建议尽量小一些。');
             } else {
                 API.toast('图片读取失败，请换一张图片重试。');
             }
