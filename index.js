@@ -276,8 +276,8 @@
     container.id = CONFIG.ID;
     container.style.cssText = `
         position: fixed; top: 0; left: 0;
-        width: 100vw; height: 100dvh;
-        min-width: 100vw; min-height: 100vh;
+        width: 100%; height: 100dvh;
+        min-width: 100%; min-height: 100dvh;
         overflow: visible; pointer-events: none; z-index: ${CONFIG.Z_INDEX};
     `;
     targetDoc.body.appendChild(container);
@@ -308,22 +308,6 @@
         .theme-glass { --fm-bg: rgba(255, 255, 255, 0.1); --fm-text-main: #ffffff; --fm-text-sub: rgba(255,255,255,0.7); --fm-accent: var(--fm-custom-color, #ffffff); --fm-border: rgba(255, 255, 255, 0.2); --fm-shadow: rgba(0, 0, 0, 0.2); }
 
         * { box-sizing: border-box; font-family: var(--fm-font); margin: 0; padding: 0; }
-
-        .fm-ball {
-            position: absolute; width: var(--fm-ball-size, 50px); height: var(--fm-ball-size, 50px); 
-            border-radius: var(--fm-radius-ball);
-            background: var(--fm-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--fm-border); box-shadow: 0 4px 12px var(--fm-shadow);
-            display: flex; justify-content: center; align-items: center;
-            color: var(--fm-text-main); font-size: 20px; cursor: grab; pointer-events: auto;
-            transition: var(--fm-transition); touch-action: none; user-select: none; z-index: 2147483646;
-        }
-        .fm-ball:active { cursor: grabbing; transform: scale(0.95); }
-        .fm-ball.playing { animation: breathe 3s ease-in-out infinite; }
-        @keyframes breathe {
-            0%, 100% { box-shadow: 0 0 8px var(--fm-shadow), 0 0 0 0 rgba(255,255,255,0); transform: scale(1); }
-            50% { box-shadow: 0 0 16px var(--fm-shadow), 0 0 0 6px var(--fm-border); transform: scale(1.02); }
-        }
 
         .fm-panel {
             position: absolute; 
@@ -604,6 +588,8 @@
 
         /* 2026-09 极简布局优化：播放与歌单合页，设置集中到一个页面；减少卡片分割线 */
         .fm-panel { background: var(--fm-bg); }
+        .fm-panel::after { content:""; position:absolute; inset:0; pointer-events:none; z-index:0; background:var(--fm-panel-overlay, transparent); }
+        .fm-panel > *:not(.fm-panel-bg) { position:relative; z-index:1; }
         .theme-light { --fm-bg:#f7f7f5; --fm-text-main:#171717; --fm-text-sub:#707070; --fm-accent:#171717; --fm-border:rgba(0,0,0,.08); --fm-shadow:rgba(0,0,0,.10); --fm-panel-overlay:rgba(255,255,255,.30); }
         .theme-dark { --fm-bg:#111111; --fm-text-main:#f5f5f5; --fm-text-sub:#9a9a9a; --fm-accent:#ffffff; --fm-border:rgba(255,255,255,.10); --fm-shadow:rgba(0,0,0,.38); --fm-panel-overlay:rgba(0,0,0,.16); }
         .theme-glass { --fm-bg:rgba(255,255,255,.16); --fm-text-main:#ffffff; --fm-text-sub:rgba(255,255,255,.76); --fm-accent:var(--fm-custom-color,#ffffff); --fm-border:rgba(255,255,255,.18); --fm-shadow:rgba(0,0,0,.20); --fm-panel-overlay:rgba(255,255,255,.08); }
@@ -662,8 +648,6 @@
     wrapper.className = `theme-${STATE.currentTheme}`;
     
     wrapper.innerHTML = `
-        <div class="fm-ball" id="fm-ball" title="拖拽移动，点击展开"><i class="fas fa-music"></i></div>
-
         <div class="fm-panel" id="fm-panel">
             <div class="fm-panel-bg" id="fm-panel-bg"></div>
 
@@ -737,6 +721,8 @@
                     </div>
                 </section>
 
+                </section>
+
                 <!-- 设置 -->
                 <section class="fm-page fm-page-more" data-page="more">
                     <div class="fm-page-title">
@@ -753,10 +739,6 @@
                             <div class="fm-theme-dot dot-light" data-theme="light" title="极简白"></div>
                             <div class="fm-theme-dot dot-dark" data-theme="dark" title="深邃黑"></div>
                             <div class="fm-theme-dot dot-glass" data-theme="glass" title="毛玻璃"></div>
-                        </div>
-                        <div class="fm-more-row">
-                            <span>悬浮球大小</span>
-                            <input type="range" class="fm-size-slider" id="fm-size-slider" min="30" max="80" value="50">
                         </div>
                         <div class="fm-more-row">
                             <span>强调色</span>
@@ -846,7 +828,6 @@
 
     const UI = {
         wrapper: wrapper,
-        ball: wrapper.querySelector('#fm-ball'),
         panel: wrapper.querySelector('#fm-panel'),
         closeBtn: wrapper.querySelector('#fm-close'),
         title: wrapper.querySelector('#fm-title'),
@@ -880,7 +861,6 @@
         popMenu: wrapper.querySelector('#fm-pop-menu'),
         playlistEl: wrapper.querySelector('#fm-playlist'),
         themeDots: wrapper.querySelectorAll('.fm-theme-dot'),
-        sizeSlider: wrapper.querySelector('#fm-size-slider'),
         colorPicker: wrapper.querySelector('#fm-color-picker'),
         shapeBtn: wrapper.querySelector('#fm-shape-btn'),
         bgUploadInput: wrapper.querySelector('#fm-bg-upload'),
@@ -912,163 +892,24 @@
 
     // ================= 核心逻辑 =================
 
-    // 拖拽与面板定位
-    function initDraggable() {
-        let isDragging = false;
-        let startX, startY, initialLeft, initialTop;
-        let currentX, currentY;
-        let rafId = null;
-        let panelOffsetX = 0, panelOffsetY = 0;
-        
-        const initX = targetWin.innerWidth - 120;
-        const initY = CONFIG.SAFE_MARGIN + 60;
-        UI.ball.style.left = `${initX}px`;
-        UI.ball.style.top = `${initY}px`;
-
-        const updatePos = () => {
-            if (!isDragging) return;
-            const dx = currentX - startX;
-            const dy = currentY - startY;
-            
-            if (Math.abs(dx) > 3 || Math.abs(dy) > 3) UI.ball.setAttribute('data-dragged', 'true');
-
-            let newLeft = initialLeft + dx;
-            let newTop = initialTop + dy;
-            
-            const currentSize = parseInt(savedSettings.ballSize) || 50;
-            const maxLeft = targetWin.innerWidth - currentSize - CONFIG.SAFE_MARGIN;
-            const maxTop = targetWin.innerHeight - currentSize - CONFIG.SAFE_MARGIN;
-            
-            newLeft = Math.max(CONFIG.SAFE_MARGIN, Math.min(newLeft, maxLeft));
-            newTop = Math.max(CONFIG.SAFE_MARGIN, Math.min(newTop, maxTop));
-
-            UI.ball.style.left = `${newLeft}px`;
-            UI.ball.style.top = `${newTop}px`;
-            
-            if (STATE.isExpanded) {
-                const panelWidth = UI.panel.offsetWidth;
-                const panelHeight = UI.panel.offsetHeight || 540;
-                let pLeft = newLeft - panelOffsetX;
-                let pTop = newTop - panelOffsetY;
-                
-                pLeft = Math.max(CONFIG.SAFE_MARGIN, Math.min(pLeft, targetWin.innerWidth - panelWidth - CONFIG.SAFE_MARGIN));
-                pTop = Math.max(CONFIG.SAFE_MARGIN, Math.min(pTop, targetWin.innerHeight - panelHeight - CONFIG.SAFE_MARGIN));
-                
-                UI.panel.style.left = `${pLeft}px`;
-                UI.panel.style.top = `${pTop}px`;
-            }
-            rafId = null;
-        };
-
-        const onDown = (e) => {
-            if (e.button !== 0) return;
-            isDragging = true;
-            UI.ball.setAttribute('data-dragged', 'false');
-            UI.ball.style.transition = 'none';
-
-            const rect = UI.ball.getBoundingClientRect();
-            initialLeft = rect.left;
-            initialTop = rect.top;
-            startX = e.clientX; startY = e.clientY;
-            currentX = startX; currentY = startY;
-            
-            if (STATE.isExpanded) {
-                const pRect = UI.panel.getBoundingClientRect();
-                panelOffsetX = initialLeft - pRect.left;
-                panelOffsetY = initialTop - pRect.top;
-                UI.panel.style.transition = 'none';
-            }
-
-            targetDoc.addEventListener('pointermove', onMove);
-            targetDoc.addEventListener('pointerup', onUp);
-            targetDoc.addEventListener('pointercancel', onUp);
-            UI.ball.setPointerCapture(e.pointerId);
-        };
-
-        const onMove = (e) => {
-            if (!isDragging) return;
-            currentX = e.clientX; currentY = e.clientY;
-            if (!rafId) rafId = requestAnimationFrame(updatePos);
-        };
-
-        const onUp = (e) => {
-            if (!isDragging) return;
-            if (rafId) { cancelAnimationFrame(rafId); rafId = null; updatePos(); }
-            isDragging = false;
-            targetDoc.removeEventListener('pointermove', onMove);
-            targetDoc.removeEventListener('pointerup', onUp);
-            targetDoc.removeEventListener('pointercancel', onUp);
-            try { UI.ball.releasePointerCapture(e.pointerId); } catch (err) {}
-            requestAnimationFrame(() => { 
-                UI.ball.style.transition = ''; 
-                if (STATE.isExpanded) UI.panel.style.transition = '';
-            });
-
-            if (UI.ball.getAttribute('data-dragged') === 'false') togglePanel();
-        };
-
-        UI.ball.addEventListener('pointerdown', onDown);
-    }
-
-    // 修复：壁纸自适应与边界限制
+    // 面板开关：由酒馆「拓展 → Giselle播放器」直接打开
     function togglePanel() {
         STATE.isExpanded = !STATE.isExpanded;
-        const currentSize = parseInt(savedSettings.ballSize) || 50;
-        
         if (STATE.isExpanded) {
-            applySettings(); 
-            
-            // 使用实际 CSS 宽度，避免小屏 max-width 与 JS 估算不一致。
+            applySettings(false);
             const panelWidth = UI.panel.offsetWidth || Math.min(400, targetWin.innerWidth - CONFIG.SAFE_MARGIN * 2);
-            
             let estimatedHeight = 540;
-            if (savedSettings.panelRatio === '3:4') {
-                estimatedHeight = panelWidth * (4/3);
-            } else if (savedSettings.panelRatio === '9:16') {
-                estimatedHeight = panelWidth * (16/9);
-            } else if (savedSettings.panelRatio === 'default' && savedSettings.bgImageWidth && savedSettings.bgImageHeight) {
-                // 严格根据图片原始比例计算
-                estimatedHeight = panelWidth * (savedSettings.bgImageHeight / savedSettings.bgImageWidth);
-            }
-            
-            // 强力边界约束：无论计算出多高，绝对不能超出屏幕
-            const maxAllowedHeight = targetWin.innerHeight - (CONFIG.SAFE_MARGIN * 2);
+            if (savedSettings.panelRatio === '3:4') estimatedHeight = panelWidth * (4/3);
+            else if (savedSettings.panelRatio === '9:16') estimatedHeight = panelWidth * (16/9);
+            else if (savedSettings.panelRatio === 'default' && savedSettings.bgImageWidth && savedSettings.bgImageHeight) estimatedHeight = panelWidth * (savedSettings.bgImageHeight / savedSettings.bgImageWidth);
+            const maxAllowedHeight = targetWin.innerHeight - CONFIG.SAFE_MARGIN * 2;
             const panelHeight = Math.min(estimatedHeight, maxAllowedHeight);
-            
-            // 应用计算后的高度
             UI.panel.style.height = `${panelHeight}px`;
-            
-            let pLeft = targetWin.innerWidth / 2 - panelWidth / 2;
-            let pTop = targetWin.innerHeight / 2 - panelHeight / 2;
-            
-            pLeft = Math.max(CONFIG.SAFE_MARGIN, Math.min(pLeft, targetWin.innerWidth - panelWidth - CONFIG.SAFE_MARGIN));
-            pTop = Math.max(CONFIG.SAFE_MARGIN, Math.min(pTop, targetWin.innerHeight - panelHeight - CONFIG.SAFE_MARGIN));
-            
-            UI.panel.style.left = `${pLeft}px`;
-            UI.panel.style.top = `${pTop}px`;
-            
-            let bLeft, bTop;
-            if (targetWin.innerHeight - (pTop + panelHeight) < 100) {
-                bLeft = pLeft + panelWidth - currentSize / 2;
-                bTop = pTop + panelHeight - currentSize / 2;
-            } else {
-                bLeft = pLeft - currentSize / 2;
-                bTop = pTop - currentSize / 2;
-            }
-            
-            bLeft = Math.max(CONFIG.SAFE_MARGIN, Math.min(bLeft, targetWin.innerWidth - currentSize - CONFIG.SAFE_MARGIN));
-            bTop = Math.max(CONFIG.SAFE_MARGIN, Math.min(bTop, targetWin.innerHeight - currentSize - CONFIG.SAFE_MARGIN));
-            
-            UI.ball.style.left = `${bLeft}px`;
-            UI.ball.style.top = `${bTop}px`;
-            
-            UI.ball.innerHTML = '<i class="fas fa-times"></i>';
-            UI.ball.classList.remove('playing');
+            UI.panel.style.left = `${Math.max(CONFIG.SAFE_MARGIN, (targetWin.innerWidth - panelWidth) / 2)}px`;
+            UI.panel.style.top = `${Math.max(CONFIG.SAFE_MARGIN, (targetWin.innerHeight - panelHeight) / 2)}px`;
             UI.panel.classList.add('open');
         } else {
             UI.panel.classList.remove('open');
-            UI.ball.innerHTML = '<i class="fas fa-music"></i>';
-            if (STATE.isPlaying) UI.ball.classList.add('playing');
         }
     }
 
@@ -2143,7 +1984,6 @@
 
     const applySettings = (persist = true) => {
 
-        UI.wrapper.style.setProperty('--fm-ball-size', `${savedSettings.ballSize}px`);
         UI.wrapper.style.setProperty('--fm-custom-color', savedSettings.customColor);
         
         if (savedSettings.shapeStyle === 'square') {
@@ -2196,7 +2036,6 @@
         if (persist) saveSettings();
     };
 
-    UI.sizeSlider.value = savedSettings.ballSize;
     UI.colorPicker.value = savedSettings.customColor;
     UI.bgBlurSlider.value = savedSettings.bgBlur;
     UI.bgBrightnessSlider.value = savedSettings.bgBrightness;
@@ -2213,12 +2052,6 @@
     };
     updateLrcModeBtns();
     syncLyricsVisibility();
-
-    UI.sizeSlider.oninput = (e) => {
-        savedSettings.ballSize = e.target.value;
-        applySettings(false);
-        scheduleSettingsSave();
-    };
 
     UI.colorPicker.oninput = (e) => {
         savedSettings.customColor = e.target.value;
@@ -2325,14 +2158,12 @@
     audio.onplay = () => {
         STATE.isPlaying = true;
         UI.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        UI.ball.classList.add('playing');
         if (lrcRafId) cancelAnimationFrame(lrcRafId);
         updateLyrics();
     };
     audio.onpause = () => {
         STATE.isPlaying = false;
         UI.playBtn.innerHTML = '<i class="fas fa-play"></i>';
-        UI.ball.classList.remove('playing');
         if (lrcRafId) cancelAnimationFrame(lrcRafId);
     };
     audio.onended = () => {
@@ -2364,7 +2195,6 @@
     };
 
     // ================= 初始化 =================
-    initDraggable();
     initProgressBar();
     renderListUI(); 
     
@@ -2375,18 +2205,27 @@
         API.toast(msg);
     }
     
-    targetWin._flowMusicToggle = () => {
-        STATE.isVisible = !STATE.isVisible;
-        if (STATE.isVisible) UI.wrapper.classList.remove('force-hide');
-        else {
-            UI.wrapper.classList.add('force-hide');
-            if (STATE.isExpanded) togglePanel();
-        }
+    // 注册到酒馆「拓展」面板：只增加入口，不改变播放器页面布局。
+    const installExtensionEntry = () => {
+        const host = targetDoc.querySelector('#extensions_settings2') || targetDoc.querySelector('#extensions_settings');
+        if (!host || host.querySelector('#giselle-player-entry')) return;
+        const entry = targetDoc.createElement('div');
+        entry.className = 'inline-drawer';
+        entry.id = 'giselle-player-entry';
+        entry.innerHTML = `
+            <div class="inline-drawer-toggle inline-drawer-header" id="giselle-player-open" style="cursor:pointer;">
+                <b>Giselle播放器</b>
+                <div class="inline-drawer-icon fa-solid fa-music"></div>
+            </div>`;
+        host.appendChild(entry);
+        entry.querySelector('#giselle-player-open').addEventListener('click', (e) => {
+            e.preventDefault(); e.stopPropagation();
+            if (!STATE.isExpanded) togglePanel();
+        });
     };
-
-    if (typeof eventOn === 'function' && typeof getButtonEvent === 'function') {
-        eventOn(getButtonEvent('显隐播放器'), targetWin._flowMusicToggle);
-    }
+    installExtensionEntry();
+    setTimeout(installExtensionEntry, 500);
+    setTimeout(installExtensionEntry, 1500);
 
     targetWin.addEventListener('pagehide', () => {
         if (audio) { audio.pause(); audio.src = ''; audio = null; }
@@ -2395,7 +2234,8 @@
         clearTimeout(settingsSaveTimer);
         const c = targetDoc.getElementById(CONFIG.ID);
         if (c) c.remove();
-        delete targetWin._flowMusicToggle;
+        const entry = targetDoc.getElementById('giselle-player-entry');
+        if (entry) entry.remove();
     });
 
 })();
