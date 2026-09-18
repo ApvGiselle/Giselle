@@ -544,7 +544,6 @@
 
         .fm-app-head { display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; flex:0 0 auto; }
         .fm-brand { display:flex; align-items:center; min-width:0; }
-        .fm-brand .fm-cover-mock { width:38px; height:38px; margin-right:10px; font-size:16px; }
         .fm-app-name { font-size:15px; font-weight:700; color:var(--fm-text-main); }
         .fm-app-sub { margin-top:2px; font-size:9px; letter-spacing:.16em; color:var(--fm-text-sub); }
         .fm-pages { flex:1 1 auto; min-height:0; overflow:hidden; position:relative; }
@@ -625,7 +624,6 @@
 
             <div class="fm-app-head">
                 <div class="fm-brand">
-                    <div class="fm-cover-mock"><i class="fas fa-compact-disc"></i></div>
                     <div class="fm-brand-text">
                         <div class="fm-app-name">АрⅤ Terminal</div>
                         <div class="fm-app-sub">MUSIC PLAYER</div>
