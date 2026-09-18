@@ -276,9 +276,9 @@
     container.id = CONFIG.ID;
     container.style.cssText = `
         position: fixed; top: 0; left: 0;
-        width: 0; height: 0;
-        min-width: 0; min-height: 0;
-        overflow: visible; pointer-events: auto; z-index: ${CONFIG.Z_INDEX};
+        width: 100vw; height: 100dvh;
+        min-width: 100vw; min-height: 100vh;
+        overflow: visible; pointer-events: none; z-index: ${CONFIG.Z_INDEX};
     `;
     targetDoc.body.appendChild(container);
 
