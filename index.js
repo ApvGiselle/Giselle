@@ -146,6 +146,38 @@
 
     let audio = new targetWin.Audio();
     let lrcRafId = null;
+    let lrcLastFrameTime = 0;
+    const LRC_FRAME_INTERVAL = 1000 / 20; // 动态歌词最高约 20 FPS，降低手机持续重绘压力。
+
+    function shouldRunLyrics() {
+        if (!STATE.isPlaying || audio.paused) return false;
+        if (!STATE.isLyricsVisible || STATE.lyricsData.length === 0) return false;
+        if (targetDoc.hidden) return false;
+        return true;
+    }
+
+    function stopLyricsLoop() {
+        if (lrcRafId) cancelAnimationFrame(lrcRafId);
+        lrcRafId = null;
+        lrcLastFrameTime = 0;
+    }
+
+    function scheduleLyricsLoop() {
+        if (!shouldRunLyrics()) {
+            stopLyricsLoop();
+            return;
+        }
+        if (lrcRafId) return;
+        lrcRafId = requestAnimationFrame((now) => {
+            lrcRafId = null;
+            if (!shouldRunLyrics()) return;
+            if (now - lrcLastFrameTime >= LRC_FRAME_INTERVAL) {
+                lrcLastFrameTime = now;
+                updateLyrics();
+            }
+            scheduleLyricsLoop();
+        });
+    }
 
     // ================= API 封装 =================
     const API = {
@@ -1780,9 +1812,9 @@
                 }
             }
         }
-        // 普通歌词模式不需要逐帧渲染；由 audio.ontimeupdate 驱动即可。
+        // 普通歌词模式由 audio.ontimeupdate 驱动；动态歌词由独立调度器限频刷新。
         if (savedSettings.lrcMode !== 'plain') {
-            lrcRafId = requestAnimationFrame(updateLyrics);
+            scheduleLyricsLoop();
         } else {
             lrcRafId = null;
         }
@@ -1829,9 +1861,11 @@
         if (!STATE.isLyricsVisible) {
             UI.outLyrics.innerHTML = '';
             UI.outLyricsScrollList.innerHTML = '';
+            stopLyricsLoop();
         } else if (!audio.paused) {
             STATE.lastActiveLrcIndex = -1;
             updateLyrics();
+            scheduleLyricsLoop();
         }
     };
 
@@ -1844,9 +1878,12 @@
         savedSettings.lrcMode = 'plain';
         updateLrcModeBtns();
         STATE.lastActiveLrcIndex = -1;
-        if (lrcRafId) { cancelAnimationFrame(lrcRafId); lrcRafId = null; }
+        stopLyricsLoop();
         syncLyricsVisibility();
-        if (STATE.isLyricsVisible && !audio.paused) updateLyrics();
+        if (STATE.isLyricsVisible && !audio.paused) {
+            updateLyrics();
+            scheduleLyricsLoop();
+        }
         applySettings();
     };
 
@@ -1856,7 +1893,12 @@
         updateLrcModeBtns();
         STATE.lastActiveLrcIndex = -1;
         syncLyricsVisibility();
-        if (STATE.isLyricsVisible && !audio.paused) updateLyrics();
+        if (STATE.isLyricsVisible && !audio.paused) {
+            updateLyrics();
+            scheduleLyricsLoop();
+        } else {
+            stopLyricsLoop();
+        }
         applySettings();
     };
     UI.lrcModeScrollBtn.onclick = () => {
@@ -1866,7 +1908,12 @@
         STATE.lastActiveLrcIndex = -1;
         syncLyricsVisibility();
         if (STATE.lyricsData.length > 0) buildScrollLyricsDom();
-        if (STATE.isLyricsVisible && !audio.paused) updateLyrics();
+        if (STATE.isLyricsVisible && !audio.paused) {
+            updateLyrics();
+            scheduleLyricsLoop();
+        } else {
+            stopLyricsLoop();
+        }
         applySettings();
     };
     UI.lrcModeFallBtn.onclick = () => {
@@ -1875,7 +1922,12 @@
         updateLrcModeBtns();
         STATE.lastActiveLrcIndex = -1;
         syncLyricsVisibility();
-        if (STATE.isLyricsVisible && !audio.paused) updateLyrics();
+        if (STATE.isLyricsVisible && !audio.paused) {
+            updateLyrics();
+            scheduleLyricsLoop();
+        } else {
+            stopLyricsLoop();
+        }
         applySettings();
     };
 
@@ -2297,18 +2349,31 @@
         applySettings();
     };
 
+    targetDoc.addEventListener('visibilitychange', () => {
+        if (targetDoc.hidden) {
+            stopLyricsLoop();
+            return;
+        }
+        if (shouldRunLyrics()) {
+            STATE.lastActiveLrcIndex = -1;
+            updateLyrics();
+            scheduleLyricsLoop();
+        }
+    });
+
     audio.onplay = () => {
         STATE.isPlaying = true;
         UI.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
         UI.ball.classList.add('playing');
-        if (lrcRafId) cancelAnimationFrame(lrcRafId);
+        stopLyricsLoop();
         updateLyrics();
+        scheduleLyricsLoop();
     };
     audio.onpause = () => {
         STATE.isPlaying = false;
         UI.playBtn.innerHTML = '<i class="fas fa-play"></i>';
         UI.ball.classList.remove('playing');
-        if (lrcRafId) cancelAnimationFrame(lrcRafId);
+        stopLyricsLoop();
     };
     audio.onended = () => {
         if (STATE.playMode === 'repeat_one') { audio.currentTime = 0; audio.play(); }
