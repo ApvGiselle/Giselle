@@ -363,9 +363,9 @@
         .fm-btn.play-pause:hover { background: var(--fm-accent); color: #fff; }
         .fm-btn.active-state { color: var(--fm-accent); }
 
-        .fm-list-section { display: flex; flex-direction: column; flex: 1; min-height: 150px; border-top: 1px solid var(--fm-border); background: rgba(0,0,0,0.02); overflow: hidden; }
+        .fm-list-section { display: flex; flex-direction: column; flex: 0 0 auto; min-height: 150px; border-top: 0; background: transparent; overflow: visible; }
         
-        .fm-input-wrap { display: flex; padding: 10px; border-bottom: 1px solid var(--fm-border); gap: 6px; align-items: center; }
+        .fm-input-wrap { display: flex; padding: 4px 0; border-bottom: 0; gap: 6px; align-items: center; }
         .fm-select { background: rgba(0,0,0,0.1); border: 1px solid var(--fm-border); border-radius: var(--fm-radius-input); color: var(--fm-text-main); font-size: 12px; padding: 6px 4px; outline: none; cursor: pointer; transition: var(--fm-transition); }
         .fm-select option { background: #333; color: #fff; }
         .fm-input { flex: 1; background: transparent; border: 1px solid var(--fm-border); border-radius: var(--fm-radius-input); padding: 6px 10px; color: var(--fm-text-main); font-size: 12px; outline: none; transition: border-color 0.2s, border-radius 0.4s; }
@@ -375,7 +375,7 @@
         .fm-add-btn:hover { opacity: 0.8; }
         .fm-add-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .fm-playlist-tabs { display: flex; align-items: center; overflow-x: auto; padding: 6px 10px; gap: 6px; border-bottom: 1px solid var(--fm-border); background: rgba(0,0,0,0.05); }
+        .fm-playlist-tabs { display: flex; align-items: center; overflow-x: auto; padding: 6px 0; gap: 6px; border-bottom: 0; background: transparent; }
         .fm-playlist-tabs::-webkit-scrollbar { height: 0px; display: none; }
         .fm-playlist-tabs { touch-action: pan-x; -webkit-overflow-scrolling: touch; }
         .fm-tab { padding: 4px 12px; border-radius: var(--fm-radius-input); font-size: 11px; color: var(--fm-text-sub); background: transparent; border: 1px solid transparent; cursor: pointer; white-space: nowrap; transition: var(--fm-transition); user-select: none; }
@@ -399,7 +399,7 @@
         .fm-pop-item { padding: 8px 16px; font-size: 12px; color: var(--fm-text-main); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: background 0.2s; }
         .fm-pop-item:hover { background: var(--fm-accent); color: #fff; }
 
-        .fm-playlist { flex: 1; overflow-y: auto; padding: 4px 0; position: relative; }
+        .fm-playlist { flex: 0 0 auto; overflow: visible; padding: 4px 0; position: relative; }
         .fm-playlist::-webkit-scrollbar { width: 4px; }
         .fm-playlist::-webkit-scrollbar-thumb { background: var(--fm-border); border-radius: 2px; }
         
@@ -527,7 +527,7 @@
         .fm-lrc-scroll-line.near { opacity: 0.6; }
         .fm-lrc-scroll-line.current { color: var(--fm-accent); font-weight: bold; opacity: 1; font-size: calc(var(--fm-lrc-font, 16px) * 1.15); }
 
-        .fm-lrc-settings-panel { display: none; flex-direction: column; gap: 10px; padding: 12px 24px 16px; border-top: 1px solid var(--fm-border); }
+        .fm-lrc-settings-panel { display: none; flex-direction: column; gap: 10px; padding: 8px 0 4px; border-top: 0; }
         .fm-lrc-settings-panel.open { display: flex; }
         .fm-lrc-settings-row { display: flex; align-items: center; gap: 10px; }
         .fm-lrc-settings-label { font-size: 11px; color: var(--fm-text-sub); width: 56px; flex-shrink: 0; }
@@ -538,13 +538,12 @@
         .force-hide { display: none !important; }
 
         .fm-page-play .fm-play-lyrics-settings { margin-top:2px; }
-        .fm-page-play .fm-play-lyrics-settings .fm-lrc-settings-panel.open { display:flex; padding:8px 14px 14px; border-top:0; }
+        .fm-page-play .fm-play-lyrics-settings .fm-lrc-settings-panel.open, .fm-page-more .fm-play-lyrics-settings .fm-lrc-settings-panel.open { display:flex; padding:8px 0 4px; border-top:0; }
         .fm-page-play .fm-quick-card { min-height:52px; box-sizing:border-box; }
-        .fm-bottom-nav { grid-template-columns:repeat(3,1fr); }
+        .fm-bottom-nav { grid-template-columns:repeat(2,1fr); }
 
         .fm-app-head { display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; flex:0 0 auto; }
         .fm-brand { display:flex; align-items:center; min-width:0; }
-        .fm-brand .fm-cover-mock { width:38px; height:38px; margin-right:10px; font-size:16px; }
         .fm-app-name { font-size:15px; font-weight:700; color:var(--fm-text-main); }
         .fm-app-sub { margin-top:2px; font-size:9px; letter-spacing:.16em; color:var(--fm-text-sub); }
         .fm-pages { flex:1 1 auto; min-height:0; overflow:hidden; position:relative; }
@@ -567,43 +566,49 @@
         .fm-now-meta { min-width:0; }
         .fm-now-meta .fm-title { font-size:18px; margin-bottom:5px; }
         .fm-now-meta .fm-artist { font-size:12px; }
-        .fm-quick-card, .fm-status-card, .fm-setting-card, .fm-info-card, .fm-settings-section { border:1px solid var(--fm-border); border-radius:16px; background:rgba(255,255,255,.05); }
-        .fm-quick-card { display:flex; align-items:center; justify-content:space-between; padding:13px 14px; }
+        .fm-quick-card, .fm-status-card, .fm-setting-card, .fm-info-card, .fm-settings-section { border:0; border-radius:0; background:transparent; }
+        .fm-quick-card { display:flex; align-items:center; justify-content:space-between; padding:8px 0; }
         .fm-quick-title, .fm-card-title, .fm-status-title { font-size:13px; font-weight:700; color:var(--fm-text-main); }
         .fm-quick-sub, .fm-card-sub, .fm-status-sub { margin-top:3px; font-size:10px; line-height:1.45; color:var(--fm-text-sub); }
-        .fm-card-arrow, .fm-outline-btn { border:1px solid var(--fm-border); background:transparent; color:var(--fm-text-main); border-radius:10px; cursor:pointer; }
+        .fm-card-arrow, .fm-outline-btn { border:0; background:transparent; color:var(--fm-text-main); border-radius:10px; cursor:pointer; }
         .fm-card-arrow { width:32px; height:32px; }
-        .fm-setting-card { overflow:hidden; }
-        .fm-setting-card-head { display:flex; align-items:center; justify-content:space-between; padding:13px 14px 4px; }
+        .fm-setting-card { overflow:visible; }
+        .fm-setting-card-head { display:flex; align-items:center; justify-content:space-between; padding:8px 0 4px; }
         .fm-inline-icon-btn { width:30px; height:30px; }
-        .fm-count-badge { padding:5px 8px; border-radius:8px; border:1px solid var(--fm-border); font-size:9px; color:var(--fm-text-sub); }
+        .fm-count-badge { padding:3px 0; font-size:9px; color:var(--fm-text-sub); }
         .fm-library-input { padding:0; border:0; gap:6px; }
         .fm-library-input .fm-select { min-width:72px; }
         .fm-library-input .fm-input { min-width:0; height:38px; box-sizing:border-box; }
         .fm-library-input .fm-add-btn { height:38px; }
-        .fm-page-playlist .fm-list-section { min-height:0; flex:1 1 auto; border:1px solid var(--fm-border); border-radius:16px; overflow:hidden; }
+        .fm-page-playlist { flex:0 0 auto; min-height:0; display:flex; flex-direction:column; gap:10px; }
+        .fm-page-playlist .fm-list-section { min-height:150px; flex:0 0 auto; border:0; border-radius:0; overflow:visible; background:transparent; }
         .fm-page-playlist .fm-playlist-tabs { flex:0 0 auto; }
-        .fm-page-playlist .fm-playlist { min-height:0; }
-        .fm-settings-section { padding:14px; }
+        .fm-page-playlist .fm-playlist { min-height:0; overflow:visible; }
+        .fm-settings-section { padding:8px 0; }
         .fm-settings-section-title { font-size:12px; font-weight:800; color:var(--fm-text-main); margin-bottom:12px; }
         .fm-theme-row { display:flex; gap:10px; margin-bottom:14px; }
         .fm-theme-row .fm-theme-dot { width:28px; height:28px; }
-        .fm-more-row { display:flex; align-items:center; gap:12px; min-height:38px; border-top:1px solid var(--fm-border); font-size:11px; color:var(--fm-text-sub); }
+        .fm-more-row { display:flex; align-items:center; gap:12px; min-height:38px; border-top:0; font-size:11px; color:var(--fm-text-sub); }
+        .fm-more-row + .fm-more-row { margin-top:4px; }
         .fm-more-row > span { width:72px; flex:0 0 72px; }
         .fm-more-row input[type=range] { flex:1; min-width:0; accent-color:var(--fm-accent); }
-        .fm-wide-btn { width:100%; height:36px; margin-top:8px; border:1px solid var(--fm-border); border-radius:10px; background:transparent; color:var(--fm-text-main); display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; font-size:11px; }
+        .fm-appearance-pair { display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:center; }
+        .fm-appearance-pair .fm-more-row { min-width:0; }
+        .fm-appearance-pair .fm-more-row > span { width:auto; flex:1; }
+        .fm-color-picker { width:38px; height:26px; padding:0; border:0; background:transparent; }
+        .fm-wide-btn { width:100%; height:36px; margin-top:8px; border:0; border-radius:10px; background:rgba(0,0,0,.05); color:var(--fm-text-main); display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; font-size:11px; }
         .fm-bg-action-row { display:flex; gap:7px; margin-bottom:4px; }
-        .fm-bg-btn { flex:1; height:34px; border:1px solid var(--fm-border); border-radius:10px; background:transparent; color:var(--fm-text-main); cursor:pointer; font-size:10px; }
+        .fm-bg-btn { flex:1; height:34px; border:0; border-radius:10px; background:rgba(0,0,0,.05); color:var(--fm-text-main); cursor:pointer; font-size:10px; }
         .fm-range-with-icon { display:flex; align-items:center; gap:8px; flex:1; }
         .fm-range-with-icon i { width:12px; color:var(--fm-text-sub); font-size:10px; }
-        .fm-bottom-nav { display:grid; grid-template-columns:repeat(3,1fr); gap:4px; padding:8px 8px max(8px, env(safe-area-inset-bottom)); border-top:1px solid var(--fm-border); background:rgba(0,0,0,.04); flex:0 0 auto; }
-        .fm-nav-btn { min-width:0; height:44px; border:0; border-radius:13px; background:transparent; color:var(--fm-text-sub); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; cursor:pointer; font-size:9px; }
+        .fm-bottom-nav { display:grid; grid-template-columns:repeat(2,1fr); gap:4px; padding:8px 8px max(8px, env(safe-area-inset-bottom)); border-top:0; background:rgba(0,0,0,.02); flex:0 0 auto; }
+        .fm-nav-btn { min-width:0; height:44px; border:0; border-radius:13px; background:transparent; color:var(--fm-text-sub); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; cursor:pointer; font-size:10px; }
         .fm-nav-btn i { font-size:15px; }
-        .fm-nav-btn.active { color:var(--fm-accent); background:var(--fm-border); }
-        
+        .fm-nav-btn.active { color:var(--fm-accent); background:transparent; }
+
         @media (min-width: 700px) {
-            .fm-panel { width:420px; }
-            .fm-page { padding-left:20px; padding-right:20px; }
+            .fm-panel { width:400px; }
+            .fm-page { padding-left:18px; padding-right:18px; }
         }
     `;
     shadow.appendChild(style);
@@ -619,7 +624,6 @@
 
             <div class="fm-app-head">
                 <div class="fm-brand">
-                    <div class="fm-cover-mock"><i class="fas fa-compact-disc"></i></div>
                     <div class="fm-brand-text">
                         <div class="fm-app-name">АрⅤ Terminal</div>
                         <div class="fm-app-sub">MUSIC PLAYER</div>
@@ -629,7 +633,7 @@
             </div>
 
             <main class="fm-pages">
-                <!-- 播放 -->
+                <!-- 播放与歌单 -->
                 <section class="fm-page fm-page-play active" data-page="play">
                     <div class="fm-now-playing">
                         <div class="fm-now-cover" id="fm-now-cover">
@@ -660,77 +664,40 @@
                         <button class="fm-btn" id="fm-next"><i class="fas fa-step-forward"></i></button>
                         <button class="fm-btn active-state" id="fm-lrc-toggle" title="外显歌词"><i class="fas fa-closed-captioning"></i></button>
                     </div>
-                    
-                    <div class="fm-setting-card fm-play-lyrics-settings">
-                        <div class="fm-setting-card-head">
+
+                    <section class="fm-page-playlist" id="fm-playlist-section">
+                        <div class="fm-page-title">
                             <div>
-                                <div class="fm-card-title">播放 / 歌词设置</div>
-                                <div class="fm-card-sub">播放控制与外显歌词设置集中在这里</div>
+                                <div class="fm-section-kicker">LIBRARY</div>
+                                <h2>歌单</h2>
                             </div>
-                            <button class="fm-btn fm-inline-icon-btn" id="fm-lrc-settings" title="歌词设置"><i class="fas fa-sliders-h"></i></button>
+                            <span class="fm-count-badge" id="fm-library-count">LIBRARY</span>
                         </div>
-                        <div class="fm-lrc-settings-panel open" id="fm-lrc-settings-panel">
-                            <div class="fm-lrc-settings-row">
-                                <span class="fm-lrc-settings-label">样式</span>
-                                <div class="fm-lrc-mode-switch">
-                                    <button class="fm-lrc-mode-btn" id="fm-lrc-mode-plain" data-mode="plain">普通歌词</button>
-                                    <button class="fm-lrc-mode-btn" id="fm-lrc-mode-popup" data-mode="popup">逐句显现</button>
-                                    <button class="fm-lrc-mode-btn" id="fm-lrc-mode-scroll" data-mode="scroll">三行滚动</button>
-                                    <button class="fm-lrc-mode-btn" id="fm-lrc-mode-fall" data-mode="fall">随机掉落</button>
-                                </div>
-                            </div>
-                            <div class="fm-lrc-settings-row">
-                                <span class="fm-lrc-settings-label">字号</span>
-                                <input type="range" id="fm-lrc-font-slider" min="12" max="32" step="1">
-                            </div>
-                            <div class="fm-lrc-settings-row">
-                                <span class="fm-lrc-settings-label">位置</span>
-                                <input type="range" id="fm-lrc-bottom-slider" min="40" max="400" step="5">
-                            </div>
+
+                        <div class="fm-input-wrap fm-library-input">
+                            <select class="fm-select" id="fm-source-select">
+                                <option value="netease">网易云</option>
+                                <option value="tencent">QQ音乐</option>
+                                <option value="search">搜单曲</option>
+                                <option value="search_local">搜列表</option>
+                            </select>
+                            <input type="text" class="fm-input" id="fm-input" placeholder="输入歌单ID或链接" autocomplete="off">
+                            <button class="fm-add-btn" id="fm-add">导入</button>
                         </div>
-                    </div>
-                    <div class="fm-quick-card" id="fm-quick-library">
-                        <div>
-                            <div class="fm-quick-title">歌单</div>
-                            <div class="fm-quick-sub">浏览列表、搜索音乐或导入歌单</div>
+
+                        <div class="fm-list-section">
+                            <div class="fm-playlist-tabs" id="fm-playlist-tabs"></div>
+                            <div class="fm-playlist" id="fm-playlist"></div>
                         </div>
-                        <button class="fm-card-arrow" id="fm-quick-library-btn"><i class="fas fa-chevron-right"></i></button>
-                    </div>
+                    </section>
                 </section>
 
-                <!-- 歌单 -->
-                <section class="fm-page fm-page-playlist" data-page="playlist">
-                    <div class="fm-page-title">
-                        <div>
-                            <div class="fm-section-kicker">LIBRARY</div>
-                            <h2>歌单</h2>
-                        </div>
-                        <span class="fm-count-badge" id="fm-library-count">LIBRARY</span>
-                    </div>
-
-                    <div class="fm-input-wrap fm-library-input">
-                        <select class="fm-select" id="fm-source-select">
-                            <option value="netease">网易云</option>
-                            <option value="tencent">QQ音乐</option>
-                            <option value="search">搜单曲</option>
-                            <option value="search_local">搜列表</option>
-                        </select>
-                        <input type="text" class="fm-input" id="fm-input" placeholder="输入歌单ID或链接" autocomplete="off">
-                        <button class="fm-add-btn" id="fm-add">导入</button>
-                    </div>
-
-                    <div class="fm-list-section">
-                        <div class="fm-playlist-tabs" id="fm-playlist-tabs"></div>
-                        <div class="fm-playlist" id="fm-playlist"></div>
-                    </div>
-                </section>
-
-                <!-- 更多 -->
+                <!-- 外观设置 -->
                 <section class="fm-page fm-page-more" data-page="more">
                     <div class="fm-page-title">
                         <div>
                             <div class="fm-section-kicker">CUSTOMIZE</div>
-                            <h2>更多</h2>
+                            <h2>外观设置</h2>
                         </div>
                     </div>
 
@@ -746,15 +713,52 @@
                             <span>悬浮球大小</span>
                             <input type="range" class="fm-size-slider" id="fm-size-slider" min="30" max="80" value="50">
                         </div>
-                        <div class="fm-more-row">
-                            <span>强调色</span>
-                            <input type="color" class="fm-color-picker" id="fm-color-picker" value="#4a90e2">
+                        <div class="fm-appearance-pair">
+                            <div class="fm-more-row">
+                                <span>强调色</span>
+                                <input type="color" class="fm-color-picker" id="fm-color-picker" value="#4a90e2">
+                            </div>
+                            <div class="fm-more-row">
+                                <span>形状</span>
+                                <button class="fm-wide-btn" id="fm-shape-btn"><i class="fas fa-square"></i><span>切换</span></button>
+                            </div>
                         </div>
-                        <button class="fm-wide-btn" id="fm-shape-btn"><i class="fas fa-square"></i><span>切换外观形状</span></button>
+                    </div>
+
+                    <div class="fm-settings-section fm-lyrics-settings-section">
+                        <div class="fm-settings-section-title">歌词</div>
+                        <div class="fm-setting-card fm-play-lyrics-settings">
+                            <div class="fm-setting-card-head">
+                                <div>
+                                    <div class="fm-card-title">歌词显示</div>
+                                    <div class="fm-card-sub">选择外显歌词样式、字号与位置</div>
+                                </div>
+                                <button class="fm-btn fm-inline-icon-btn" id="fm-lrc-settings" title="歌词设置"><i class="fas fa-sliders-h"></i></button>
+                            </div>
+                            <div class="fm-lrc-settings-panel open" id="fm-lrc-settings-panel">
+                                <div class="fm-lrc-settings-row">
+                                    <span class="fm-lrc-settings-label">样式</span>
+                                    <div class="fm-lrc-mode-switch">
+                                        <button class="fm-lrc-mode-btn" id="fm-lrc-mode-plain" data-mode="plain">普通歌词</button>
+                                        <button class="fm-lrc-mode-btn" id="fm-lrc-mode-popup" data-mode="popup">逐句显现</button>
+                                        <button class="fm-lrc-mode-btn" id="fm-lrc-mode-scroll" data-mode="scroll">三行滚动</button>
+                                        <button class="fm-lrc-mode-btn" id="fm-lrc-mode-fall" data-mode="fall">随机掉落</button>
+                                    </div>
+                                </div>
+                                <div class="fm-lrc-settings-row">
+                                    <span class="fm-lrc-settings-label">字号</span>
+                                    <input type="range" id="fm-lrc-font-slider" min="12" max="32" step="1">
+                                </div>
+                                <div class="fm-lrc-settings-row">
+                                    <span class="fm-lrc-settings-label">位置</span>
+                                    <input type="range" id="fm-lrc-bottom-slider" min="40" max="400" step="5">
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="fm-settings-section">
-                        <div class="fm-settings-section-title">播放器装修</div>
+                        <div class="fm-settings-section-title">播放器小图装修</div>
                         <input type="file" id="fm-decoration-upload" accept="image/*" style="display:none;">
                         <div class="fm-decoration-preview">
                             <div class="fm-now-cover" id="fm-decoration-preview-cover"><i class="fas fa-compact-disc"></i></div>
@@ -795,13 +799,10 @@
 
             <nav class="fm-bottom-nav" id="fm-bottom-nav">
                 <button class="fm-nav-btn active" data-page-target="play">
-                    <i class="fas fa-play"></i><span>播放</span>
-                </button>
-                <button class="fm-nav-btn" data-page-target="playlist">
-                    <i class="fas fa-list"></i><span>歌单</span>
+                    <i class="fas fa-music"></i><span>播放与歌单</span>
                 </button>
                 <button class="fm-nav-btn" data-page-target="more">
-                    <i class="fas fa-ellipsis-h"></i><span>更多</span>
+                    <i class="fas fa-sliders-h"></i><span>外观设置</span>
                 </button>
             </nav>
         </div>
@@ -878,7 +879,11 @@
 
     navEls.forEach(btn => btn.addEventListener('click', () => switchPlayerPage(btn.dataset.pageTarget)));
     const quickLibraryBtn = wrapper.querySelector('#fm-quick-library-btn');
-    if (quickLibraryBtn) quickLibraryBtn.addEventListener('click', () => switchPlayerPage('playlist'));
+    if (quickLibraryBtn) quickLibraryBtn.addEventListener('click', () => {
+        switchPlayerPage('play');
+        const playlistSection = wrapper.querySelector('#fm-playlist-section');
+        if (playlistSection) playlistSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
 
     // ================= 核心逻辑 =================
 
@@ -989,7 +994,7 @@
             applySettings(); 
             
             // 使用实际 CSS 宽度，避免小屏 max-width 与 JS 估算不一致。
-            const panelWidth = UI.panel.offsetWidth || Math.min(400, targetWin.innerWidth - CONFIG.SAFE_MARGIN * 2);
+            const panelWidth = Math.min(UI.panel.offsetWidth || 400, targetWin.innerWidth - CONFIG.SAFE_MARGIN * 2);
             
             let estimatedHeight = 540;
             if (savedSettings.panelRatio === '3:4') {
@@ -2296,15 +2301,14 @@
         STATE.isPlaying = true;
         UI.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
         UI.ball.classList.add('playing');
-        stopLyricsLoop();
+        if (lrcRafId) cancelAnimationFrame(lrcRafId);
         updateLyrics();
-        if (savedSettings.lrcMode !== 'plain') scheduleLyricsLoop();
     };
     audio.onpause = () => {
         STATE.isPlaying = false;
         UI.playBtn.innerHTML = '<i class="fas fa-play"></i>';
         UI.ball.classList.remove('playing');
-        stopLyricsLoop();
+        if (lrcRafId) cancelAnimationFrame(lrcRafId);
     };
     audio.onended = () => {
         if (STATE.playMode === 'repeat_one') { audio.currentTime = 0; audio.play(); }
