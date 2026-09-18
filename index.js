@@ -601,6 +601,58 @@
         .fm-nav-btn i { font-size:15px; }
         .fm-nav-btn.active { color:var(--fm-accent); background:var(--fm-border); }
         
+
+        /* 2026-09 极简布局优化：播放与歌单合页，设置集中到一个页面；减少卡片分割线 */
+        .fm-panel { background: var(--fm-bg); }
+        .fm-panel::after { content:""; position:absolute; inset:0; pointer-events:none; z-index:0; background:var(--fm-panel-overlay, transparent); }
+        .fm-panel > *:not(.fm-panel-bg) { position:relative; z-index:1; }
+        .theme-light { --fm-bg:#f7f7f5; --fm-text-main:#171717; --fm-text-sub:#707070; --fm-accent:#171717; --fm-border:rgba(0,0,0,.08); --fm-shadow:rgba(0,0,0,.10); --fm-panel-overlay:rgba(255,255,255,.30); }
+        .theme-dark { --fm-bg:#111111; --fm-text-main:#f5f5f5; --fm-text-sub:#9a9a9a; --fm-accent:#ffffff; --fm-border:rgba(255,255,255,.10); --fm-shadow:rgba(0,0,0,.38); --fm-panel-overlay:rgba(0,0,0,.16); }
+        .theme-glass { --fm-bg:rgba(255,255,255,.16); --fm-text-main:#ffffff; --fm-text-sub:rgba(255,255,255,.76); --fm-accent:var(--fm-custom-color,#ffffff); --fm-border:rgba(255,255,255,.18); --fm-shadow:rgba(0,0,0,.20); --fm-panel-overlay:rgba(255,255,255,.08); }
+        .theme-glass .fm-bg-btn, .theme-glass .fm-card-arrow, .theme-glass .fm-wide-btn, .theme-glass .fm-select, .theme-glass .fm-input, .theme-glass .fm-lrc-mode-btn { background:rgba(255,255,255,.14); border-color:rgba(255,255,255,.22); }
+        .theme-light .fm-bg-btn, .theme-light .fm-card-arrow, .theme-light .fm-wide-btn, .theme-light .fm-select, .theme-light .fm-input, .theme-light .fm-lrc-mode-btn { background:rgba(0,0,0,.035); }
+        .theme-dark .fm-bg-btn, .theme-dark .fm-card-arrow, .theme-dark .fm-wide-btn, .theme-dark .fm-select, .theme-dark .fm-input, .theme-dark .fm-lrc-mode-btn { background:rgba(255,255,255,.055); }
+
+        .fm-app-head { padding:12px 16px 8px; border-bottom:0; }
+        .fm-pages { overflow:hidden; }
+        .fm-page { padding:6px 16px 20px; gap:16px; }
+        .fm-page.active { gap:16px; }
+        .fm-page-main { overflow-y:auto; }
+        .fm-page-main > * { flex-shrink:0; }
+        .fm-now-playing { padding:10px 0 6px; border:0; background:transparent; }
+        .fm-progress-wrap { padding:10px 0 0; }
+        .fm-controls { padding:10px 0 8px; }
+        .fm-play-lyrics-settings { display:none !important; }
+        .fm-quick-card { display:none !important; }
+        .fm-inline-playlist { display:flex; flex-direction:column; gap:8px; margin-top:4px; min-height:260px; }
+        .fm-inline-title { padding:4px 0 0; }
+        .fm-inline-heading { display:flex; align-items:center; gap:8px; font-size:19px; font-weight:700; color:var(--fm-text-main); }
+        .fm-inline-playlist .fm-list-section { min-height:230px; flex:1 1 230px; border:0; border-radius:0; background:transparent; overflow:hidden; }
+        .fm-inline-playlist .fm-playlist-tabs { border:0; background:transparent; padding:4px 0 8px; }
+        .fm-inline-playlist .fm-playlist { padding:0; }
+        .fm-inline-playlist .fm-item { padding:8px 0; }
+        .fm-inline-playlist .fm-item.active { background:rgba(128,128,128,.08); border-left:0; border-radius:10px; padding-left:8px; padding-right:8px; }
+        .fm-library-input { border:0; background:transparent; padding:0; }
+        .fm-settings-section, .fm-setting-card, .fm-quick-card, .fm-status-card, .fm-info-card { border:0; border-radius:0; background:transparent; padding-left:0; padding-right:0; }
+        .fm-settings-section { padding-top:6px; padding-bottom:4px; }
+        .fm-settings-section + .fm-settings-section { margin-top:2px; }
+        .fm-settings-section-title { font-size:15px; margin-bottom:10px; }
+        .fm-more-row { border-top:0; min-height:40px; padding:3px 0; }
+        .fm-more-row > span { width:78px; flex-basis:78px; color:var(--fm-text-sub); }
+        .fm-lrc-settings-panel { padding:0; border:0; gap:9px; }
+        .fm-lrc-settings-row { min-height:38px; }
+        .fm-lrc-mode-switch { gap:5px; }
+        .fm-lrc-mode-btn { border:1px solid transparent; background:rgba(128,128,128,.08); }
+        .fm-lrc-mode-btn.active { border-color:var(--fm-accent); background:rgba(128,128,128,.14); }
+        .fm-decoration-preview { margin:2px 0 8px; }
+        .fm-bg-action-row { margin-bottom:2px; }
+        .fm-bottom-nav { grid-template-columns:repeat(2,1fr); border-top:0; background:transparent; padding-top:6px; }
+        .fm-nav-btn { border-radius:11px; }
+        .fm-nav-btn.active { background:rgba(128,128,128,.10); }
+        .fm-count-badge { border:0; background:rgba(128,128,128,.08); }
+        .fm-page-title { padding:2px 0; }
+        .fm-page-title h2 { font-size:22px; }
+        .fm-page-more { padding-bottom:24px; }
         @media (min-width: 700px) {
             .fm-panel { width:420px; }
             .fm-page { padding-left:20px; padding-right:20px; }
@@ -630,7 +682,7 @@
 
             <main class="fm-pages">
                 <!-- 播放 -->
-                <section class="fm-page fm-page-play active" data-page="play">
+                <section class="fm-page fm-page-main active" data-page="main">
                     <div class="fm-now-playing">
                         <div class="fm-now-cover" id="fm-now-cover">
                             <i class="fas fa-compact-disc"></i>
@@ -661,51 +713,13 @@
                         <button class="fm-btn active-state" id="fm-lrc-toggle" title="外显歌词"><i class="fas fa-closed-captioning"></i></button>
                     </div>
                     
-                    <div class="fm-setting-card fm-play-lyrics-settings">
-                        <div class="fm-setting-card-head">
-                            <div>
-                                <div class="fm-card-title">播放 / 歌词设置</div>
-                                <div class="fm-card-sub">播放控制与外显歌词设置集中在这里</div>
-                            </div>
-                            <button class="fm-btn fm-inline-icon-btn" id="fm-lrc-settings" title="歌词设置"><i class="fas fa-sliders-h"></i></button>
-                        </div>
-                        <div class="fm-lrc-settings-panel open" id="fm-lrc-settings-panel">
-                            <div class="fm-lrc-settings-row">
-                                <span class="fm-lrc-settings-label">样式</span>
-                                <div class="fm-lrc-mode-switch">
-                                    <button class="fm-lrc-mode-btn" id="fm-lrc-mode-plain" data-mode="plain">普通歌词</button>
-                                    <button class="fm-lrc-mode-btn" id="fm-lrc-mode-popup" data-mode="popup">逐句显现</button>
-                                    <button class="fm-lrc-mode-btn" id="fm-lrc-mode-scroll" data-mode="scroll">三行滚动</button>
-                                    <button class="fm-lrc-mode-btn" id="fm-lrc-mode-fall" data-mode="fall">随机掉落</button>
-                                </div>
-                            </div>
-                            <div class="fm-lrc-settings-row">
-                                <span class="fm-lrc-settings-label">字号</span>
-                                <input type="range" id="fm-lrc-font-slider" min="12" max="32" step="1">
-                            </div>
-                            <div class="fm-lrc-settings-row">
-                                <span class="fm-lrc-settings-label">位置</span>
-                                <input type="range" id="fm-lrc-bottom-slider" min="40" max="400" step="5">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="fm-quick-card" id="fm-quick-library">
-                        <div>
-                            <div class="fm-quick-title">歌单</div>
-                            <div class="fm-quick-sub">浏览列表、搜索音乐或导入歌单</div>
-                        </div>
-                        <button class="fm-card-arrow" id="fm-quick-library-btn"><i class="fas fa-chevron-right"></i></button>
-                    </div>
-                </section>
-
                 <!-- 歌单 -->
-                <section class="fm-page fm-page-playlist" data-page="playlist">
-                    <div class="fm-page-title">
+                <section class="fm-inline-playlist">
+                    <div class="fm-inline-title">
                         <div>
                             <div class="fm-section-kicker">LIBRARY</div>
-                            <h2>歌单</h2>
+                            <div class="fm-inline-heading">歌单 <span class="fm-count-badge" id="fm-library-count">LIBRARY</span></div>
                         </div>
-                        <span class="fm-count-badge" id="fm-library-count">LIBRARY</span>
                     </div>
 
                     <div class="fm-input-wrap fm-library-input">
@@ -725,12 +739,14 @@
                     </div>
                 </section>
 
-                <!-- 更多 -->
+                </section>
+
+                <!-- 设置 -->
                 <section class="fm-page fm-page-more" data-page="more">
                     <div class="fm-page-title">
                         <div>
                             <div class="fm-section-kicker">CUSTOMIZE</div>
-                            <h2>更多</h2>
+                            <h2>设置</h2>
                         </div>
                     </div>
 
@@ -751,6 +767,29 @@
                             <input type="color" class="fm-color-picker" id="fm-color-picker" value="#4a90e2">
                         </div>
                         <button class="fm-wide-btn" id="fm-shape-btn"><i class="fas fa-square"></i><span>切换外观形状</span></button>
+                    </div>
+
+                    <div class="fm-settings-section">
+                        <div class="fm-settings-section-title">歌词</div>
+                        <div class="fm-lrc-settings-panel open" id="fm-lrc-settings-panel">
+                            <div class="fm-lrc-settings-row">
+                                <span class="fm-lrc-settings-label">样式</span>
+                                <div class="fm-lrc-mode-switch">
+                                    <button class="fm-lrc-mode-btn" id="fm-lrc-mode-plain" data-mode="plain">普通歌词</button>
+                                    <button class="fm-lrc-mode-btn" id="fm-lrc-mode-popup" data-mode="popup">逐句显现</button>
+                                    <button class="fm-lrc-mode-btn" id="fm-lrc-mode-scroll" data-mode="scroll">三行滚动</button>
+                                    <button class="fm-lrc-mode-btn" id="fm-lrc-mode-fall" data-mode="fall">随机掉落</button>
+                                </div>
+                            </div>
+                            <div class="fm-lrc-settings-row">
+                                <span class="fm-lrc-settings-label">字号</span>
+                                <input type="range" id="fm-lrc-font-slider" min="12" max="32" step="1">
+                            </div>
+                            <div class="fm-lrc-settings-row">
+                                <span class="fm-lrc-settings-label">位置</span>
+                                <input type="range" id="fm-lrc-bottom-slider" min="40" max="400" step="5">
+                            </div>
+                        </div>
                     </div>
 
                     <div class="fm-settings-section">
@@ -794,14 +833,11 @@
             </main>
 
             <nav class="fm-bottom-nav" id="fm-bottom-nav">
-                <button class="fm-nav-btn active" data-page-target="play">
-                    <i class="fas fa-play"></i><span>播放</span>
-                </button>
-                <button class="fm-nav-btn" data-page-target="playlist">
-                    <i class="fas fa-list"></i><span>歌单</span>
+                <button class="fm-nav-btn active" data-page-target="main">
+                    <i class="fas fa-play"></i><span>播放器</span>
                 </button>
                 <button class="fm-nav-btn" data-page-target="more">
-                    <i class="fas fa-ellipsis-h"></i><span>更多</span>
+                    <i class="fas fa-sliders-h"></i><span>设置</span>
                 </button>
             </nav>
         </div>
@@ -877,8 +913,6 @@
     }
 
     navEls.forEach(btn => btn.addEventListener('click', () => switchPlayerPage(btn.dataset.pageTarget)));
-    const quickLibraryBtn = wrapper.querySelector('#fm-quick-library-btn');
-    if (quickLibraryBtn) quickLibraryBtn.addEventListener('click', () => switchPlayerPage('playlist'));
 
     // ================= 核心逻辑 =================
 
